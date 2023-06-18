@@ -1,0 +1,22 @@
+version: '2'
+services:
+  influxdb:
+    image: influxdb:1.8
+    ports:
+      - '8086:8086'
+    volumes:
+      - ./influx/influxdb_data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=monitoring
+      - INFLUXDB_ADMIN_USER=
+      - INFLUXDB_ADMIN_PASSWORD=
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    user: "$UID:$GID"
+
