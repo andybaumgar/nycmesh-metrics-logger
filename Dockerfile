@@ -10,9 +10,7 @@ RUN pip3 install -r requirements.txt
 # copy everything after tests to speed up caching
 COPY . .
 
-# ENV PYTHONPATH "${PYTHONPATH}:notification_agent/agent.py"
-
-# install the notification-agent with pip
+# install the logger with pip
 RUN pip install -e .
 
 CMD python -u nycmesh_metrics_logger

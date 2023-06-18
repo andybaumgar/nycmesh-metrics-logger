@@ -6,6 +6,7 @@ from influxdb import InfluxDBClient
 from datetime import datetime
 import os
 import datetime
+import time
 
 import nycmesh_metrics_logger.config as config
 from nycmesh_metrics_logger.uisp_client import devices_to_df, get_device_history, get_uisp_devices
@@ -22,7 +23,7 @@ def get_60_ghz_interface(history):
         if interface['id'] == 'main':
             return interface
 
-def get_device_histories(interval='day', device_limit=None):
+def get_device_histories(device_limit=None):
     
     devices = get_uisp_devices()
     device_df = devices_to_df(devices)
@@ -34,7 +35,7 @@ def get_device_histories(interval='day', device_limit=None):
     histories = []
     
     for device_id, device_name in zip(df['id'], df['name']):
-        history = get_device_history(device_id, interval)
+        history = get_device_history(device_id)
         
         history['name'] = device_name
         histories.append(history)
@@ -43,7 +44,9 @@ def get_device_histories(interval='day', device_limit=None):
 
 def create_device_metrics(history):
     points = []
-    for transmit_bytes in get_60_ghz_interface(history)['transmit']:
+    
+    # only get first element
+    for transmit_bytes in get_60_ghz_interface(history)['transmit'][:1]:
 
         utc_time = datetime.datetime.utcfromtimestamp(transmit_bytes['x']/1000)
         formatted_time = utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -78,6 +81,13 @@ def log_devices(histories):
 
     influx_client.write_points(metrics)
 
+def run():
+    while True:
+        print("logger running")
+        histories = get_device_histories()
+        log_devices(histories)
+        print("logged devices")
+        time.sleep(60*5)
 
 if __name__ == '__main__':
     histories = get_device_histories()

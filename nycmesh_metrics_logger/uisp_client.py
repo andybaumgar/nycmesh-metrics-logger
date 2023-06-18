@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 import pandas as pd
+import time
 
 from nycmesh_metrics_logger.mesh_utils import nn_from_string
 from nycmesh_metrics_logger.config import devices_endpoint, statistics_endpoint
@@ -54,12 +55,14 @@ def devices_to_df(devices):
     df = pd.DataFrame.from_dict(parsed_devices)
     return df
 
-def get_device_history(device_id, interval):
+def get_device_history(device_id):
     # Available interval values : hour, fourhours, day, week, month, quarter, year, range
     
     endpoint = statistics_endpoint.format(device_id)
     params = {
-    "interval": interval,
+    "start":int(time.time() * 1000),
+    "period":int(60*1000),
+    "interval": "range",
     }
     response = requests.get(endpoint, headers=headers, params=params, verify=False)
     history = json.loads(response.content)
