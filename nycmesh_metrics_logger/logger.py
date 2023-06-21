@@ -9,7 +9,7 @@ import datetime
 import time
 
 import nycmesh_metrics_logger.config as config
-from nycmesh_metrics_logger.uisp_client import devices_to_df, get_device_history, get_uisp_devices
+from nycmesh_metrics_logger.uisp_client import devices_to_df, get_device_history, get_uisp_devices, filter_unique_links
 
 influx_client = InfluxDBClient(
     os.environ.get('DATABASE_HOST'),
@@ -26,9 +26,10 @@ def get_60_ghz_interface(history):
 def get_device_histories(device_limit=None):
     
     devices = get_uisp_devices()
-    device_df = devices_to_df(devices)
+    df = devices_to_df(devices)
 
-    df = device_df[device_df['has60GhzRadio']==True]
+    df = df[df['has60GhzRadio']==True]
+    df = filter_unique_links(df)
     if device_limit is not None:
         df = df.head(device_limit)
 

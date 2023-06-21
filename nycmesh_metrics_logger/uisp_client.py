@@ -6,7 +6,7 @@ import os
 import pandas as pd
 import time
 
-from nycmesh_metrics_logger.mesh_utils import nn_from_string
+from nycmesh_metrics_logger.mesh_utils import nn_from_string, identifier_string_from_string_multi
 from nycmesh_metrics_logger.config import devices_endpoint, statistics_endpoint
 
 load_dotenv() 
@@ -53,6 +53,17 @@ def devices_to_df(devices):
             continue
     
     df = pd.DataFrame.from_dict(parsed_devices)
+    return df
+
+def filter_unique_links(df):
+
+    df['node_1'] = df['name'].apply(lambda x: identifier_string_from_string_multi(x, position=0))
+    df['node_2'] = df['name'].apply(lambda x: identifier_string_from_string_multi(x, position=1))
+
+    df['link'] = df['node_1'] + '-' + df['node_2']
+    
+    df = df.sort_values(by=['node_1'])
+    df = df.drop_duplicates(subset=['link'], keep='first')
     return df
 
 def get_device_history(device_id):
