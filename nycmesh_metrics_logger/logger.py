@@ -11,6 +11,8 @@ import time
 import nycmesh_metrics_logger.config as config
 from nycmesh_metrics_logger.uisp_client import devices_to_df, get_device_history, get_uisp_devices, filter_unique_links
 
+from open_weather_map import get_precipitation
+
 influx_client = InfluxDBClient(
     os.environ.get('DATABASE_HOST'),
     8086, 
@@ -82,14 +84,34 @@ def log_devices(histories):
 
     influx_client.write_points(metrics)
 
+def log_precipitation():
+    precipitation_volume = get_precipitation()
+    utc_time = datetime.datetime.utcnow()
+    formatted_time = utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    point = {
+        "measurement": "precipitation",
+        "time": formatted_time,
+        "fields": {
+            "volume": precipitation_volume
+        }
+    }
+
+    influx_client.write_points([point])
+
 def run():
     while True:
         print("logger running")
         histories = get_device_histories()
         log_devices(histories)
         print("logged devices")
+        
+        log_precipitation()
+        
         time.sleep(60*5)
 
 if __name__ == '__main__':
-    histories = get_device_histories()
-    log_devices(histories)
+    # histories = get_device_histories()
+    # log_devices(histories)
+
+    log_precipitation()
