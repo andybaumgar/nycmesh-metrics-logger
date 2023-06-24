@@ -19,6 +19,6 @@ def get_precipitation():
     elif 'snow' in data:
         precipitation_volume = data['snow'].get('1h')
     else:
-        precipitation_volume = 0
+        precipitation_volume = 0.0
 
     return precipitation_volume
