@@ -46,27 +46,25 @@ def get_device_histories(device_limit=None):
     return histories
 
 def create_device_metrics(history):
-    points = []
     
-    # only get first element
-    for transmit_bytes in get_60_ghz_interface(history)['transmit'][:1]:
+    # only get more recent (last) element
+    last_measurement = get_60_ghz_interface(history)['transmit'][-1]
 
-        utc_time = datetime.datetime.utcfromtimestamp(transmit_bytes['x']/1000)
-        formatted_time = utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+    utc_time = datetime.datetime.utcfromtimestamp(last_measurement['x']/1000)
+    formatted_time = utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        point = {
-            "measurement": "devices",
-            "time": formatted_time,
-            "tags": {
-                "name": history['name'],
-                },
-            "fields": {
-                "outage": 1 if transmit_bytes['y'] == 0 else 0
-            }
+    point = {
+        "measurement": "devices",
+        "time": formatted_time,
+        "tags": {
+            "name": history['name'],
+            },
+        "fields": {
+            "outage": 1 if last_measurement['y'] == 0 else 0
         }
-        points.append(point)
+    }
  
-    return points
+    return [point]
 
 def log_devices(histories):
 
@@ -77,7 +75,8 @@ def log_devices(histories):
     for history in histories:
         try:
             nested_metrics.append(create_device_metrics(history))
-        except:
+        except Exception as e:
+            print(f'Error creating metrics for {history["name"]}: {e}')
             pass
 
     metrics = list(itertools.chain.from_iterable(nested_metrics))
@@ -111,7 +110,7 @@ def run():
         time.sleep(60*5)
 
 if __name__ == '__main__':
-    # histories = get_device_histories()
-    # log_devices(histories)
+    histories = get_device_histories()
+    log_devices(histories)
 
     log_precipitation()

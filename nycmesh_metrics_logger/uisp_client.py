@@ -71,9 +71,9 @@ def get_device_history(device_id):
     
     endpoint = statistics_endpoint.format(device_id)
     params = {
-    "start":int(time.time() * 1000),
-    "period":int(60*1000),
-    "interval": "range",
+    # "start":int(time.time() * 1000),
+    # "period":int(11*60*1000),
+    "interval": "hour",
     }
     response = requests.get(endpoint, headers=headers, params=params, verify=False)
     history = json.loads(response.content)
