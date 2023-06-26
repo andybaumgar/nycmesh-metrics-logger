@@ -29,6 +29,7 @@ def get_device_histories(device_limit=None):
     
     devices = get_uisp_devices()
     df = devices_to_df(devices)
+    # df = df[df['name']=='nycmesh-231-AF60HD-333']
 
     df = df[df['has60GhzRadio']==True]
     df = filter_unique_links(df)
@@ -48,23 +49,36 @@ def get_device_histories(device_limit=None):
 def create_device_metrics(history):
     
     # only get more recent (last) element
-    last_measurement = get_60_ghz_interface(history)['transmit'][-1]
+    measurements = get_60_ghz_interface(history)['transmit']
+    number_of_measurements = 5
+    if len(measurements) >= number_of_measurements:
+        last_measurements = measurements[-number_of_measurements:]
+    else:
+        last_measurements = measurements
 
-    utc_time = datetime.datetime.utcfromtimestamp(last_measurement['x']/1000)
-    formatted_time = utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+    points = []
+    for measurement in last_measurements:
+         
+        utc_time = datetime.datetime.utcfromtimestamp(measurement['x']/1000)
+        formatted_time = utc_time.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    point = {
-        "measurement": "devices",
-        "time": formatted_time,
-        "tags": {
-            "name": history['name'],
-            },
-        "fields": {
-            "outage": 1 if last_measurement['y'] == 0 else 0
+        if measurement['y'] is None:
+            continue
+
+        point = {
+            "measurement": "devices",
+            "time": formatted_time,
+            "tags": {
+                "name": history['name'],
+                },
+            "fields": {
+                "outage": 1 if measurement['y'] == 0 else 0
+            }
         }
-    }
+
+        points.append(point)
  
-    return [point]
+    return points
 
 def log_devices(histories):
 
@@ -113,4 +127,4 @@ if __name__ == '__main__':
     histories = get_device_histories()
     log_devices(histories)
 
-    log_precipitation()
+    # log_precipitation()
