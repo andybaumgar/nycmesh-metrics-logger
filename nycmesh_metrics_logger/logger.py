@@ -138,13 +138,14 @@ def run():
         time.sleep(60*5)
 
 if __name__ == '__main__':
-    save_history_filename = 'histories.pkl'
-    # histories = get_device_histories()
+    # save_history_filename = 'histories.pkl'
+    histories = get_device_histories()
     # with open(save_history_filename, 'wb') as pickle_file:
     #         pickle.dump(histories, pickle_file)
 
-    with open(save_history_filename, 'rb') as pickle_file:
-            histories = pickle.load(pickle_file)
+    # with open(save_history_filename, 'rb') as pickle_file:
+    #         histories = pickle.load(pickle_file)
+    
     log_devices(histories)
 
     # log_precipitation()

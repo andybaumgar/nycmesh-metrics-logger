@@ -60,7 +60,7 @@ def filter_unique_links(df):
     df['node_1'] = df['name'].apply(lambda x: identifier_string_from_string_multi(x, position=0))
     df['node_2'] = df['name'].apply(lambda x: identifier_string_from_string_multi(x, position=1))
 
-    df['link'] = df['node_1'] + '-' + df['node_2']
+    df['link'] = df['node_1'] + '-' + df['node_2'] + '-' + df['has60GhzRadio'].astype(str)
     
     df = df.sort_values(by=['node_1'])
     df = df.drop_duplicates(subset=['link'], keep='first')
