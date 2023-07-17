@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 import datetime
 import time
+import pickle
 
 import nycmesh_metrics_logger.config as config
 from nycmesh_metrics_logger.uisp_client import devices_to_df, get_device_history, get_uisp_devices, filter_unique_links
@@ -20,10 +21,23 @@ influx_client = InfluxDBClient(
     password=os.environ.get('DATABASE_PASSWORD'), 
     database=config.database)
 
-def get_60_ghz_interface(history):
+def is_24_ghz(history):
+    return 'af24' in history['name'].lower()
+
+def get_main_interface(history):
+    if is_24_ghz(history):
+        for interface in history['interfaces']:
+            if interface['id'] == 'wlan':
+                return interface
+    
+    # 60Ghz
     for interface in history['interfaces']:
         if interface['id'] == 'main':
             return interface
+
+def filter_60_and_24_ghz(df: pd.DataFrame):
+    df = df[(df['has60GhzRadio']==True) | (df['name'].str.contains('af24', case=False))]
+    return df
 
 def get_device_histories(device_limit=None):
     
@@ -31,7 +45,7 @@ def get_device_histories(device_limit=None):
     df = devices_to_df(devices)
     # df = df[df['name']=='nycmesh-231-AF60HD-333']
 
-    df = df[df['has60GhzRadio']==True]
+    df = filter_60_and_24_ghz(df)
     df = filter_unique_links(df)
     if device_limit is not None:
         df = df.head(device_limit)
@@ -49,7 +63,7 @@ def get_device_histories(device_limit=None):
 def create_device_metrics(history):
     
     # only get more recent (last) element
-    measurements = get_60_ghz_interface(history)['transmit']
+    measurements = get_main_interface(history)['transmit']
     number_of_measurements = 5
     if len(measurements) >= number_of_measurements:
         last_measurements = measurements[-number_of_measurements:]
@@ -124,7 +138,13 @@ def run():
         time.sleep(60*5)
 
 if __name__ == '__main__':
-    histories = get_device_histories()
+    save_history_filename = 'histories.pkl'
+    # histories = get_device_histories()
+    # with open(save_history_filename, 'wb') as pickle_file:
+    #         pickle.dump(histories, pickle_file)
+
+    with open(save_history_filename, 'rb') as pickle_file:
+            histories = pickle.load(pickle_file)
     log_devices(histories)
 
     # log_precipitation()
