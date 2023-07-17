@@ -1,8 +1,6 @@
 ## Setup
-- `docker stop nycmesh-metrics-logger`
-- `docker remove nycmesh-metrics-logger`
-- `docker build . -t nycmesh-metrics-logger`
-- `docker run -d --name nycmesh-metrics-logger --restart unless-stopped nycmesh-metrics-logger`
+- add .env file
+- `sudo ./ci.sh'
 
 ## Reload Single Service
 `docker compose up --force-recreate -d --no-deps --build grafana`
