@@ -1,6 +1,6 @@
 ## Setup
 - add .env file
-- `sudo ./ci.sh'
+- `sudo ./ci.sh`
 
 ## Reload Single Service
 `docker compose up --force-recreate -d --no-deps --build grafana`
