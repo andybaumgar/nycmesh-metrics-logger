@@ -80,7 +80,7 @@ def get_device_history(device_id):
     return history
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":r
     device_id = '673cb9d4-7365-4714-8129-1c38cd697988'
     history = get_device_history(device_id)
 
