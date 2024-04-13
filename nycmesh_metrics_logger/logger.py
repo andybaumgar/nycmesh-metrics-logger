@@ -141,9 +141,9 @@ def log_precipitation():
 def run():
     while True:
         print("logger running")
-        histories = get_device_histories()
-        log_devices(histories)
-        print("logged devices")
+        # histories = get_device_histories()
+        # log_devices(histories)
+        # print("logged devices")
 
         log_precipitation()
 
@@ -152,13 +152,13 @@ def run():
 
 if __name__ == "__main__":
     # save_history_filename = 'histories.pkl'
-    histories = get_device_histories()
+    # histories = get_device_histories()
     # with open(save_history_filename, 'wb') as pickle_file:
     #         pickle.dump(histories, pickle_file)
 
     # with open(save_history_filename, 'rb') as pickle_file:
     #         histories = pickle.load(pickle_file)
 
-    log_devices(histories)
+    # log_devices(histories)
 
-    # log_precipitation()
+    log_precipitation()

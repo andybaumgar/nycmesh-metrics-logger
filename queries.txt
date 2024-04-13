@@ -1,0 +1,1 @@
+SELECT * FROM "precipitation" WHERE time >= now() - 24h and time <= now()
