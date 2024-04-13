@@ -141,9 +141,9 @@ def log_precipitation():
 def run():
     while True:
         print("logger running")
-        # histories = get_device_histories()
-        # log_devices(histories)
-        # print("logged devices")
+        histories = get_device_histories()
+        log_devices(histories)
+        print("logged devices")
 
         log_precipitation()
 
